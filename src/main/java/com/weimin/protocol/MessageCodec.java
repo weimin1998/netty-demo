@@ -13,11 +13,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-
+// byteBuf和泛型类型相互转换
+// 本例子 byteBuf和Message类型相互转换
 public class MessageCodec extends ByteToMessageCodec<Message> {
 
      private static final Logger logger = new Logger(MessageCodec.class);
 
+     // ByteBuf out，这个bytebuf会由netty创建好，我们只需要把Message msg 按照自定义的协议规则写入out中即可
     @Override
     protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
         // 4字节的魔数
