@@ -3,7 +3,7 @@ package com.weimin.client;
 import com.weimin.Logger;
 import com.weimin.message.LoginRequestMessage;
 import com.weimin.protocol.MessageCodecSharable;
-import com.weimin.protocol.ProcotolFrameDecoder;
+import com.weimin.protocol.ProtocolFrameDecoder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -32,7 +32,7 @@ public class ChatClient {
             bootstrap.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
-                    ch.pipeline().addLast(new ProcotolFrameDecoder());
+                    ch.pipeline().addLast(new ProtocolFrameDecoder());
                     ch.pipeline().addLast(LOGGING_HANDLER);
                     ch.pipeline().addLast(MESSAGE_CODEC);
 
