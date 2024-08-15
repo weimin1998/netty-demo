@@ -108,6 +108,43 @@ public class TestMessageCodec {
 
         // 所以 LoggingHandler，MessageCodec 可以被多个channel共享使用，也就是只需要创建一个实例
         // 而 LengthFieldBasedFrameDecoder 定长解码器，由于要保存半包数据，所以不能被多个channel共享使用，每个channel单独创建实例
+
+
+
+        /**
+         * netty提供的handler，是否可以被多个channel共享，通过@Shareable注解标识
+         * 前面的 LoggingHandler 就是@Shareable的，LengthFieldBasedFrameDecoder就没有标注
+         * 那么我们自定义的编解码器 MessageCodec 是否可以被shareable呢？
+         * 答案是可以的。因为它并不保存任何数据，只是单纯的编解码。
+         *
+         * 但是！ 我们尝试加上@Shareable注解，在执行测试方法，发现报错了：
+         *
+         * java.lang.IllegalStateException: ChannelHandler com.weimin.protocol.MessageCodec is not allowed to be shared
+         *
+         * 	at io.netty.channel.ChannelHandlerAdapter.ensureNotSharable(ChannelHandlerAdapter.java:37)
+         * 	at io.netty.handler.codec.ByteToMessageCodec.<init>(ByteToMessageCodec.java:73)
+         * 	at io.netty.handler.codec.ByteToMessageCodec.<init>(ByteToMessageCodec.java:55)
+         * 	at com.weimin.protocol.MessageCodec.<init>(MessageCodec.java:20)
+         * 	at com.weimin.protocol.TestMessageCodec.testEncode(TestMessageCodec.java:17)
+         *
+         * 	而且是构造器报的错，但是我们并没有写构造器，所以问题出在父类的构造器，也就是 ByteToMessageCodec ,
+         * 	这个类的构造器上明明白白的写道：
+         * 	A Codec for on-the-fly encoding/decoding of bytes to messages and vise-versa.
+         * 	This can be thought of as a combination of ByteToMessageDecoder and MessageToByteEncoder.
+         * 	Be aware that sub-classes of ByteToMessageCodec MUST NOT annotated with @Sharable.
+         *
+         * 	也就是该类的子类不能被共享，所以在该类的构造方法中加入了判断，如果子类上标注的@Shareable，则抛异常。
+         *
+         * 	但是为啥呀，我这个编解码器明明是可以被多个channel共享的呀？
+         *
+         * 	作者在设计 ByteToMessageCodec 这个类的时候，因为这个类是Byte转其他类型，而Byte可能不是完整的，可能会发生半包现象，需要保存byte，最终拼凑成完整的消息
+         * 	所以做了这样的限制。
+         *
+         * 那怎么办呢？既然父类有这样的限制，那就换个父类。
+         *
+         * 参考：MessageCodecSharable
+         *
+         */
     }
 
 }

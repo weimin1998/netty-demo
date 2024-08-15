@@ -14,7 +14,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-// 可以被多个channel共享rra
+// 可以被多个channel共享
 @ChannelHandler.Sharable
 public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message> {
 

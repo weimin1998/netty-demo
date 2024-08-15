@@ -4,6 +4,7 @@ package com.weimin.protocol;
 import com.weimin.Logger;
 import com.weimin.message.Message;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 
@@ -15,6 +16,7 @@ import java.util.List;
 
 // byteBuf和泛型类型相互转换
 // 本例子 byteBuf和Message类型相互转换
+//@ChannelHandler.Sharable
 public class MessageCodec extends ByteToMessageCodec<Message> {
 
      private static final Logger logger = new Logger(MessageCodec.class);
