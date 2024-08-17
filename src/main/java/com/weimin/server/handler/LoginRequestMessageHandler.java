@@ -3,7 +3,6 @@ package com.weimin.server.handler;
 import com.weimin.Logger;
 import com.weimin.message.LoginRequestMessage;
 import com.weimin.message.LoginResponseMessage;
-import com.weimin.server.ChatServer;
 import com.weimin.server.service.UserServiceFactory;
 import com.weimin.server.session.SessionFactory;
 import io.netty.channel.ChannelHandler;

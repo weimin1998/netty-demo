@@ -3,10 +3,7 @@ package com.weimin.server;
 import com.weimin.Logger;
 import com.weimin.protocol.MessageCodecSharable;
 import com.weimin.protocol.ProtocolFrameDecoder;
-import com.weimin.server.handler.ChatRequestMessageHandler;
-import com.weimin.server.handler.GroupChatRequestMessageHandler;
-import com.weimin.server.handler.GroupCreateRequestMessageHandler;
-import com.weimin.server.handler.LoginRequestMessageHandler;
+import com.weimin.server.handler.*;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -31,6 +28,9 @@ public class ChatServer {
         ChatRequestMessageHandler CHAT_HANDLER = new ChatRequestMessageHandler();
         GroupCreateRequestMessageHandler GROUP_CREATE_HANDLER = new GroupCreateRequestMessageHandler();
         GroupChatRequestMessageHandler GROUP_CHAT_HANDLER = new GroupChatRequestMessageHandler();
+        GroupMembersRequestMessageHandler GROUP_MEMBERS_HANDLER = new GroupMembersRequestMessageHandler();
+        GroupJoinRequestMessageHandler GROUP_JOIN_HANDLER = new GroupJoinRequestMessageHandler();
+        GroupQuitRequestMessageHandler GROUP_QUIT_HANDLER = new GroupQuitRequestMessageHandler();
 
 
         try {
@@ -47,6 +47,9 @@ public class ChatServer {
                     ch.pipeline().addLast(CHAT_HANDLER);
                     ch.pipeline().addLast(GROUP_CREATE_HANDLER);
                     ch.pipeline().addLast(GROUP_CHAT_HANDLER);
+                    ch.pipeline().addLast(GROUP_MEMBERS_HANDLER);
+                    ch.pipeline().addLast(GROUP_JOIN_HANDLER);
+                    ch.pipeline().addLast(GROUP_QUIT_HANDLER);
                 }
             });
 
