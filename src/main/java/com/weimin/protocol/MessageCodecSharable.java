@@ -2,6 +2,7 @@ package com.weimin.protocol;
 
 
 import com.weimin.Logger;
+import com.weimin.config.AppConfig;
 import com.weimin.message.Message;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
@@ -18,7 +19,7 @@ import java.util.List;
 @ChannelHandler.Sharable
 public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message> {
 
-     private static final Logger logger = new Logger(MessageCodecSharable.class);
+    private static final Logger logger = new Logger(MessageCodecSharable.class);
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> outList) throws Exception {
@@ -28,19 +29,16 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
         // 1字节的版本
         out.writeByte(1);
         // 1字节序列化算法
-        out.writeByte(0);
+        // ordinal，是枚举对象在枚举类中的顺序，java 0 , json 1
+        out.writeByte(AppConfig.getSerializerAlgorithm().ordinal());
         // 1字节指令类型
         out.writeByte(msg.getMessageType());
         // 4字节的序号
         out.writeInt(msg.getSequenceId());
         // 1字节的占位符，为了使得固定部分是2的整数倍
         out.writeByte(0xff);
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(msg);
-
-        byte[] bytes = bos.toByteArray();
+        // 序列化
+        byte[] bytes = AppConfig.getSerializerAlgorithm().serialize(msg);
         // 4字节正文的长度
         out.writeInt(bytes.length);
         // 正文的内容
@@ -71,8 +69,11 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
 
         in.readBytes(bytes, 0, length);
 
-        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
-        Message message = (Message) ois.readObject();
+        Serializer.Algorithm algorithm = Serializer.Algorithm.values()[serializerType];
+
+        Class<? extends Message> messageClass = Message.getMessageClass(messageType);
+
+        Object message = algorithm.deserialize(messageClass, bytes);
 
         logger.debug("{}, {}, {}, {}, {}, {}", magicNum, version, serializerType, messageType, sequenceId, length);
 

@@ -68,6 +68,8 @@ public abstract class Message implements Serializable {
         messageClasses.put(GroupMembersResponseMessage, GroupMembersResponseMessage.class);
         messageClasses.put(RPC_MESSAGE_TYPE_REQUEST, RpcRequestMessage.class);
         messageClasses.put(RPC_MESSAGE_TYPE_RESPONSE, RpcResponseMessage.class);
+        messageClasses.put(PingMessage, PingMessage.class);
+        messageClasses.put(PongMessage, PongMessage.class);
     }
 
 }
