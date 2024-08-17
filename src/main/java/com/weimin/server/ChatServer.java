@@ -5,13 +5,18 @@ import com.weimin.protocol.MessageCodecSharable;
 import com.weimin.protocol.ProtocolFrameDecoder;
 import com.weimin.server.handler.*;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
 
 public class ChatServer {
 
@@ -31,6 +36,7 @@ public class ChatServer {
         GroupMembersRequestMessageHandler GROUP_MEMBERS_HANDLER = new GroupMembersRequestMessageHandler();
         GroupJoinRequestMessageHandler GROUP_JOIN_HANDLER = new GroupJoinRequestMessageHandler();
         GroupQuitRequestMessageHandler GROUP_QUIT_HANDLER = new GroupQuitRequestMessageHandler();
+        QuitHandler QUIT_HANDLER = new QuitHandler();
 
 
         try {
@@ -40,9 +46,26 @@ public class ChatServer {
             serverBootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
+
                     ch.pipeline().addLast(new ProtocolFrameDecoder());
                     ch.pipeline().addLast(LOGGING_HANDLER);
                     ch.pipeline().addLast(MESSAGE_CODEC);
+
+                    // 空闲检测handler
+                    // 如果5s没收到客户端的数据，会触发一个事件  IdleState.READER_IDLE
+                    ch.pipeline().addLast(new IdleStateHandler(5, 0, 0));// 连接假死
+                    ch.pipeline().addLast(new ChannelDuplexHandler(){
+                        @Override
+                        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+                            IdleStateEvent event = (IdleStateEvent) evt;
+
+                            if(event.state() == IdleState.READER_IDLE){
+                                logger.debug("客户端已经5s没发数据了");
+                                ctx.channel().close();
+                            }
+                        }
+                    });
+
                     ch.pipeline().addLast(LOGIN_HANDLER);
                     ch.pipeline().addLast(CHAT_HANDLER);
                     ch.pipeline().addLast(GROUP_CREATE_HANDLER);
@@ -50,6 +73,7 @@ public class ChatServer {
                     ch.pipeline().addLast(GROUP_MEMBERS_HANDLER);
                     ch.pipeline().addLast(GROUP_JOIN_HANDLER);
                     ch.pipeline().addLast(GROUP_QUIT_HANDLER);
+                    ch.pipeline().addLast(QUIT_HANDLER);
                 }
             });
 

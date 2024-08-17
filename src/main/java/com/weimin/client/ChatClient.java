@@ -5,15 +5,15 @@ import com.weimin.message.*;
 import com.weimin.protocol.MessageCodecSharable;
 import com.weimin.protocol.ProtocolFrameDecoder;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelInitializer;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -43,6 +43,21 @@ public class ChatClient {
                     ch.pipeline().addLast(new ProtocolFrameDecoder());
                     //ch.pipeline().addLast(LOGGING_HANDLER);
                     ch.pipeline().addLast(MESSAGE_CODEC);
+
+                    // 如果3s没有向服务器发送数据，触发一个事件 IdleState.WRITER_IDLE
+                    ch.pipeline().addLast(new IdleStateHandler(0, 3, 0));// 连接假死
+                    ch.pipeline().addLast(new ChannelDuplexHandler(){
+                        @Override
+                        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+                            IdleStateEvent event = (IdleStateEvent) evt;
+
+                            if(event.state() == IdleState.WRITER_IDLE){
+                                // 发送心跳
+                                ctx.writeAndFlush(new PingMessage());
+                                ctx.channel().close();
+                            }
+                        }
+                    });
 
                     ch.pipeline().addLast("client handler", new ChannelInboundHandlerAdapter() {
 
