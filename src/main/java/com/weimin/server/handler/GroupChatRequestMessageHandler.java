@@ -31,10 +31,10 @@ public class GroupChatRequestMessageHandler extends SimpleChannelInboundHandler<
                     }
                 }
             } else {
-                ctx.channel().writeAndFlush(new GroupChatResponseMessage(false, "你不在群聊中，不能发送群聊消息！"));
+                ctx.writeAndFlush(new GroupChatResponseMessage(false, "你不在群聊中，不能发送群聊消息！"));
             }
         } else {
-            ctx.channel().writeAndFlush(new GroupChatResponseMessage(false, groupName + "不存在！"));
+            ctx.writeAndFlush(new GroupChatResponseMessage(false, groupName + "不存在！"));
         }
 
     }

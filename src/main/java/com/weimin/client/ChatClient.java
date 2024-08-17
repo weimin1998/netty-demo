@@ -44,8 +44,8 @@ public class ChatClient {
                     //ch.pipeline().addLast(LOGGING_HANDLER);
                     ch.pipeline().addLast(MESSAGE_CODEC);
 
-                    // 如果3s没有向服务器发送数据，触发一个事件 IdleState.WRITER_IDLE
-                    ch.pipeline().addLast(new IdleStateHandler(0, 3, 0));// 连接假死
+                    // 如果1200s没有向服务器发送数据，触发一个事件 IdleState.WRITER_IDLE
+                    ch.pipeline().addLast(new IdleStateHandler(0, 1200, 0));// 连接假死
                     ch.pipeline().addLast(new ChannelDuplexHandler(){
                         @Override
                         public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -54,7 +54,6 @@ public class ChatClient {
                             if(event.state() == IdleState.WRITER_IDLE){
                                 // 发送心跳
                                 ctx.writeAndFlush(new PingMessage());
-                                ctx.channel().close();
                             }
                         }
                     });
@@ -132,7 +131,7 @@ public class ChatClient {
 
                         @Override
                         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-                            // 读取服务器发过来的消息
+                            // 读取服务器或者其他用户发过来的消息
                             logger.debug("收到消息： {}", msg);
                             if (msg instanceof LoginResponseMessage) {
                                 LoginResponseMessage responseMessage = (LoginResponseMessage) msg;

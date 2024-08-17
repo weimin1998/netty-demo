@@ -26,7 +26,7 @@ public class GroupCreateRequestMessageHandler extends SimpleChannelInboundHandle
         Group group = groupSession.createGroup(groupName, members);
 
         if (group == null) {
-            ctx.channel().writeAndFlush(new GroupCreateResponseMessage(true, "群聊【" + groupName + "】创建成功"));
+            ctx.writeAndFlush(new GroupCreateResponseMessage(true, "群聊【" + groupName + "】创建成功"));
             String groupOwner = SessionFactory.getSession().getName(ctx.channel());
             // 获取在线的成员
             List<Channel> membersChannel = groupSession.getMembersChannel(groupName);
@@ -36,7 +36,7 @@ public class GroupCreateRequestMessageHandler extends SimpleChannelInboundHandle
                 }
             }
         } else {
-            ctx.channel().writeAndFlush(new GroupCreateResponseMessage(false, groupName + "创建失败，群聊已经存在"));
+            ctx.writeAndFlush(new GroupCreateResponseMessage(false, groupName + "创建失败，群聊已经存在"));
         }
     }
 }

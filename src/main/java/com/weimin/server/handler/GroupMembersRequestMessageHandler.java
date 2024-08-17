@@ -17,9 +17,9 @@ public class GroupMembersRequestMessageHandler extends SimpleChannelInboundHandl
         GroupSession groupSession = GroupSessionFactory.getGroupSession();
         if (groupSession.groupExist(groupName)) {
             Set<String> members = groupSession.getMembers(groupName);
-            ctx.channel().writeAndFlush(new GroupMembersResponseMessage(members));
+            ctx.writeAndFlush(new GroupMembersResponseMessage(members));
         } else {
-            ctx.channel().writeAndFlush(new GroupMembersResponseMessage(false, "群聊【" + groupName + "】不存在"));
+            ctx.writeAndFlush(new GroupMembersResponseMessage(false, "群聊【" + groupName + "】不存在"));
         }
     }
 }

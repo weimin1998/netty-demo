@@ -52,15 +52,15 @@ public class ChatServer {
                     ch.pipeline().addLast(MESSAGE_CODEC);
 
                     // 空闲检测handler
-                    // 如果5s没收到客户端的数据，会触发一个事件  IdleState.READER_IDLE
-                    ch.pipeline().addLast(new IdleStateHandler(5, 0, 0));// 连接假死
+                    // 如果1800s没收到客户端的数据，会触发一个事件  IdleState.READER_IDLE
+                    ch.pipeline().addLast(new IdleStateHandler(1800, 0, 0));// 连接假死
                     ch.pipeline().addLast(new ChannelDuplexHandler(){
                         @Override
                         public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
                             IdleStateEvent event = (IdleStateEvent) evt;
 
                             if(event.state() == IdleState.READER_IDLE){
-                                logger.debug("客户端已经5s没发数据了");
+                                logger.debug("客户端已经30min没发数据了");
                                 ctx.channel().close();
                             }
                         }

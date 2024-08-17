@@ -23,13 +23,13 @@ public class GroupQuitRequestMessageHandler extends SimpleChannelInboundHandler<
 
         Group group = groupSession.removeMember(groupName, username);
         if (group == null) {
-            ctx.channel().writeAndFlush(new GroupQuitResponseMessage(false, "群聊【" + groupName + "】不存在"));
+            ctx.writeAndFlush(new GroupQuitResponseMessage(false, "群聊【" + groupName + "】不存在"));
         } else {
             List<Channel> membersChannel = groupSession.getMembersChannel(groupName);
             for (Channel channel : membersChannel) {
                 channel.writeAndFlush(new GroupQuitResponseMessage(true, "用户【" + username + "】退出群聊【" + groupName + "】"));
             }
-            ctx.channel().writeAndFlush(new GroupQuitResponseMessage(true, "成功退出群聊【" + groupName + "】"));
+            ctx.writeAndFlush(new GroupQuitResponseMessage(true, "成功退出群聊【" + groupName + "】"));
         }
     }
 }

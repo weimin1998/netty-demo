@@ -24,7 +24,7 @@ public class ChatRequestMessageHandler extends SimpleChannelInboundHandler<ChatR
             channel.writeAndFlush(new ChatResponseMessage(from, content));
         } else {
             // 对方不在线
-            ctx.channel().writeAndFlush(new ChatResponseMessage(false, "对方不在线！"));
+            ctx.writeAndFlush(new ChatResponseMessage(false, "对方不在线！"));
         }
 
     }

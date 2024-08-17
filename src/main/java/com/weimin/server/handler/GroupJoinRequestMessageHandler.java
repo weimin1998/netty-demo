@@ -34,9 +34,9 @@ public class GroupJoinRequestMessageHandler extends SimpleChannelInboundHandler<
                     channel.writeAndFlush(new GroupJoinResponseMessage(true, "用户【" + username + "】加入群聊【" + groupName + "】"));
                 }
             }
-            ctx.channel().writeAndFlush(new GroupJoinResponseMessage(true, "成功加入群聊【" + groupName + "】"));
+            ctx.writeAndFlush(new GroupJoinResponseMessage(true, "成功加入群聊【" + groupName + "】"));
         } else {
-            ctx.channel().writeAndFlush(new GroupJoinResponseMessage(false, "群聊【" + groupName + "】不存在"));
+            ctx.writeAndFlush(new GroupJoinResponseMessage(false, "群聊【" + groupName + "】不存在"));
         }
     }
 }
