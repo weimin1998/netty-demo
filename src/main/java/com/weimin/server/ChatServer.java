@@ -4,6 +4,8 @@ import com.weimin.Logger;
 import com.weimin.protocol.MessageCodecSharable;
 import com.weimin.protocol.ProtocolFrameDecoder;
 import com.weimin.server.handler.ChatRequestMessageHandler;
+import com.weimin.server.handler.GroupChatRequestMessageHandler;
+import com.weimin.server.handler.GroupCreateRequestMessageHandler;
 import com.weimin.server.handler.LoginRequestMessageHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -27,6 +29,8 @@ public class ChatServer {
         // 业务handler
         LoginRequestMessageHandler LOGIN_HANDLER = new LoginRequestMessageHandler();
         ChatRequestMessageHandler CHAT_HANDLER = new ChatRequestMessageHandler();
+        GroupCreateRequestMessageHandler GROUP_CREATE_HANDLER = new GroupCreateRequestMessageHandler();
+        GroupChatRequestMessageHandler GROUP_CHAT_HANDLER = new GroupChatRequestMessageHandler();
 
 
         try {
@@ -41,6 +45,8 @@ public class ChatServer {
                     ch.pipeline().addLast(MESSAGE_CODEC);
                     ch.pipeline().addLast(LOGIN_HANDLER);
                     ch.pipeline().addLast(CHAT_HANDLER);
+                    ch.pipeline().addLast(GROUP_CREATE_HANDLER);
+                    ch.pipeline().addLast(GROUP_CHAT_HANDLER);
                 }
             });
 
